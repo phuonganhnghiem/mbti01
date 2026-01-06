@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trắc nghiệm tính cách MBTI - AI Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .option-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .option-card:hover {
+            transform: translateY(-2px);
+            border-color: #93c5fd;
+        }
+        .option-card:active {
+            transform: scale(0.98);
+        }
+        .option-card.selected {
+            border-color: #2563eb;
+            background-color: #eff6ff;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1), 0 2px 4px -1px rgba(37, 99, 235, 0.06);
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Typing effect cursor */
+        .typing-cursor::after {
+            content: '|';
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-blue-50 to-indigo-100">
+
+    <!-- Container -->
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden min-h-[500px] flex flex-col relative transition-all duration-300" id="mainContainer">
+        
+        <!-- Header -->
+        <header class="bg-white px-6 pt-6 pb-2 text-center border-b border-gray-100 flex justify-between items-center">
+            <div class="text-left">
+                <h1 class="text-xl font-bold text-gray-800 tracking-tight">MBTI Test <span class="text-blue-600 text-sm font-normal bg-blue-50 px-2 py-0.5 rounded-full ml-1">AI Analytics</span></h1>
+            </div>
+            <div class="text-sm text-gray-400" id="questionCounter"></div>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-100 h-1.5">
+            <div id="progressBar" class="bg-blue-600 h-1.5 transition-all duration-300 ease-out" style="width: 0%"></div>
+        </div>
+
+        <!-- Content Area -->
+        <main class="flex-grow p-6 md:p-10 flex flex-col justify-center relative" id="app">
+            <!-- JavaScript will render content here -->
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-50 p-3 text-center text-gray-400 text-xs border-t flex justify-between px-6">
+            <span>&copy; 2024 MBTI AI</span>
+            <span id="categoryLabel" class="font-medium text-gray-500"></span>
+        </footer>
+    </div>
+
+    <!-- Logic Script -->
+    <script>
+        // --- DATA ---
+        // Flattened structure for single-question flow
+        const allQuestions = [
+            // Phần 1 (E/I)
+            { id: 1, a: "Tôi thích giao lưu, thảo luận nhóm", b: "Tôi thích làm việc độc lập, yên tĩnh", typeA: "E", typeB: "I", category: "Năng lượng" },
+            { id: 2, a: "Tôi dễ bắt chuyện với người mới", b: "Tôi cần thời gian để làm quen", typeA: "E", typeB: "I", category: "Năng lượng" },
+            { id: 3, a: "Tôi cảm thấy “nạp năng lượng” khi ở nơi đông người", b: "Tôi thấy “xả stress” khi ở một mình", typeA: "E", typeB: "I", category: "Năng lượng" },
+            { id: 4, a: "Tôi thường bộc lộ suy nghĩ ra ngoài", b: "Tôi thường suy nghĩ kỹ trước khi nói", typeA: "E", typeB: "I", category: "Năng lượng" },
+            { id: 5, a: "Tôi học tốt nhất khi làm cùng người khác", b: "Tôi học tốt nhất khi tự học, tự nghiên cứu", typeA: "E", typeB: "I", category: "Năng lượng" },
+            // Phần 2 (S/N)
+            { id: 6, a: "Tôi tập trung vào sự kiện, dữ kiện cụ thể", b: "Tôi quan tâm đến ý tưởng và khả năng tiềm tàng", typeA: "S", typeB: "N", category: "Thông tin" },
+            { id: 7, a: "Tôi thích quy trình rõ ràng, từng bước một", b: "Tôi thích sáng tạo và khám phá phương án mới", typeA: "S", typeB: "N", category: "Thông tin" },
+            { id: 8, a: "Tôi tin vào kinh nghiệm thực tế", b: "Tôi tin vào trực giác và cảm nhận cá nhân", typeA: "S", typeB: "N", category: "Thông tin" },
+            { id: 9, a: "Tôi hay để ý đến chi tiết nhỏ", b: "Tôi nhìn vào bức tranh tổng thể", typeA: "S", typeB: "N", category: "Thông tin" },
+            { id: 10, a: "Tôi thích những gì có thể đo lường", b: "Tôi hứng thú với những gì “có thể xảy ra” trong tương lai", typeA: "S", typeB: "N", category: "Thông tin" },
+            // Phần 3 (T/F)
+            { id: 11, a: "Tôi ra quyết định dựa trên lý trí, logic", b: "Tôi cân nhắc cảm xúc, tác động đến con người", typeA: "T", typeB: "F", category: "Quyết định" },
+            { id: 12, a: "Tôi thẳng thắn, góp ý trực tiếp", b: "Tôi nhẹ nhàng, quan tâm cảm xúc người khác", typeA: "T", typeB: "F", category: "Quyết định" },
+            { id: 13, a: "Tôi đặt hiệu quả lên hàng đầu", b: "Tôi đặt sự hài hòa, đồng thuận lên hàng đầu", typeA: "T", typeB: "F", category: "Quyết định" },
+            { id: 14, a: "Tôi xử lý vấn đề như một “chuyên gia”", b: "Tôi xử lý như một “người đồng hành”", typeA: "T", typeB: "F", category: "Quyết định" },
+            { id: 15, a: "Tôi thích môi trường cạnh tranh, đánh giá kết quả", b: "Tôi thích môi trường gắn kết, hỗ trợ lẫn nhau", typeA: "T", typeB: "F", category: "Quyết định" },
+            // Phần 4 (J/P)
+            { id: 16, a: "Tôi lên kế hoạch rõ ràng, làm việc theo tiến trình", b: "Tôi linh hoạt, phản ứng theo tình huống", typeA: "J", typeB: "P", category: "Tổ chức" },
+            { id: 17, a: "Tôi thích kết luận nhanh, đóng khung vấn đề", b: "Tôi thích mở rộng, khám phá nhiều khả năng", typeA: "J", typeB: "P", category: "Tổ chức" },
+            { id: 18, a: "Tôi thường tuân thủ thời hạn nghiêm túc", b: "Tôi có xu hướng trì hoãn nếu chưa cần gấp", typeA: "J", typeB: "P", category: "Tổ chức" },
+            { id: 19, a: "Tôi thấy hài lòng khi mọi việc được tổ chức chặt chẽ", b: "Tôi thấy thoải mái khi được tự do quyết định", typeA: "J", typeB: "P", category: "Tổ chức" },
+            { id: 20, a: "Tôi thích “đóng việc” hơn là “mở việc”", b: "Tôi thích để mọi thứ “mở”, có thể thay đổi", typeA: "J", typeB: "P", category: "Tổ chức" }
+        ];
+
+        const typeBaseInfo = {
+            "ISTJ": { title: "Người Trách Nhiệm", role: "Nhà quản lý", traits: ["Thực tế", "Có tổ chức", "Đáng tin cậy"] },
+            "ISFJ": { title: "Người Nuôi Dưỡng", role: "Người bảo vệ", traits: ["Tận tụy", "Ân cần", "Kiên nhẫn"] },
+            "INFJ": { title: "Người Che Chở", role: "Nhà tư vấn", traits: ["Sâu sắc", "Sáng tạo", "Tầm nhìn"] },
+            "INTJ": { title: "Nhà Kiến Tạo", role: "Nhà chiến lược", traits: ["Logic", "Độc lập", "Quyết đoán"] },
+            "ISTP": { title: "Thợ Thủ Công", role: "Nhà kỹ thuật", traits: ["Linh hoạt", "Thực tế", "Khéo léo"] },
+            "ISFP": { title: "Người Nghệ Sĩ", role: "Nhà phiêu lưu", traits: ["Ôn hòa", "Nhạy cảm", "Tinh tế"] },
+            "INFP": { title: "Người Hòa Giải", role: "Nhà lý tưởng", traits: ["Trung thành", "Thấu cảm", "Sáng tạo"] },
+            "INTP": { title: "Nhà Tư Duy", role: "Nhà logic học", traits: ["Tò mò", "Phân tích", "Trừu tượng"] },
+            "ESTP": { title: "Người Thực Thi", role: "Nhà khởi xướng", traits: ["Năng động", "Thực dụng", "Mạo hiểm"] },
+            "ESFP": { title: "Người Trình Diễn", role: "Người giải trí", traits: ["Vui vẻ", "Nhiệt tình", "Tự phát"] },
+            "ENFP": { title: "Người Truyền Cảm Hứng", role: "Nhà vận động", traits: ["Sáng tạo", "Nhiệt huyết", "Tự do"] },
+            "ENTP": { title: "Người Nhìn Xa", role: "Người tranh luận", traits: ["Thông minh", "Linh hoạt", "Thách thức"] },
+            "ESTJ": { title: "Người Giám Sát", role: "Nhà điều hành", traits: ["Quyết đoán", "Hiệu quả", "Hệ thống"] },
+            "ESFJ": { title: "Người Quan Tâm", role: "Người cung cấp", traits: ["Hòa đồng", "Tận tụy", "Hợp tác"] },
+            "ENFJ": { title: "Người Chỉ Dẫn", role: "Nhà giáo", traits: ["Thu hút", "Thấu hiểu", "Lãnh đạo"] },
+            "ENTJ": { title: "Nhà Điều Hành", role: "Nhà chỉ huy", traits: ["Chiến lược", "Tham vọng", "Mạnh mẽ"] }
+        };
+
+        // State
+        let currentIdx = 0;
+        let answers = {}; // { id: 'A' | 'B' }
+        const app = document.getElementById('app');
+        const progressBar = document.getElementById('progressBar');
+        const questionCounter = document.getElementById('questionCounter');
+        const categoryLabel = document.getElementById('categoryLabel');
+
+        // --- CORE FUNCTIONS ---
+
+        function renderWelcome() {
+            questionCounter.innerText = "";
+            categoryLabel.innerText = "";
+            progressBar.style.width = "0%";
+            
+            app.innerHTML = `
+                <div class="text-center space-y-8 fade-in py-4">
+                    <div class="relative inline-block">
+                        <div class="absolute inset-0 bg-blue-200 blur-xl rounded-full opacity-50"></div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm relative border border-blue-100">
+                            <i class="fa-solid fa-clipboard-list text-5xl text-blue-600"></i>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-6">Hướng dẫn</h2>
+                        
+                        <div class="space-y-4 max-w-lg mx-auto text-left bg-blue-50 p-6 rounded-xl border border-blue-100 shadow-sm">
+                             <ul class="list-disc pl-5 space-y-3 text-gray-700 font-medium">
+                                <li>Với mỗi cặp câu hỏi, hãy chọn 1 câu mô tả bạn đúng hơn trong phần lớn tình huống công việc hàng ngày.</li>
+                                <li>Không có đúng sai, chỉ có sự phù hợp với bản thân bạn.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <button onclick="startQuiz()" class="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-full bg-blue-600 px-8 font-medium text-white shadow-lg transition-all duration-300 hover:bg-blue-700 hover:w-48 w-40 hover:shadow-blue-500/30">
+                        <span class="mr-2">Bắt đầu</span>
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            currentIdx = 0;
+            answers = {};
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            if (currentIdx >= allQuestions.length) {
+                showProcessing();
+                return;
+            }
+
+            const q = allQuestions[currentIdx];
+            const progress = ((currentIdx) / allQuestions.length) * 100;
+            
+            progressBar.style.width = `${progress}%`;
+            questionCounter.innerText = `${currentIdx + 1}/${allQuestions.length}`;
+            // Removed category display as requested
+            categoryLabel.innerText = ""; 
+
+            // Fade out current content first (optional, simplistic replace here)
+            app.innerHTML = `
+                <div class="flex flex-col h-full justify-center space-y-8 slide-up">
+                    <h2 class="text-center text-gray-400 text-sm font-semibold tracking-wider uppercase mb-2">Câu hỏi ${currentIdx + 1}</h2>
+                    
+                    <div class="grid gap-4">
+                        <!-- Option A -->
+                        <button onclick="handleSelect('${q.id}', 'A')" class="option-card group relative w-full p-6 text-left bg-white border-2 border-gray-100 rounded-xl hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <div class="flex items-center justify-between">
+                                <span class="text-lg text-gray-700 font-medium group-hover:text-blue-700 transition-colors">${q.a}</span>
+                                <div class="w-6 h-6 rounded-full border-2 border-gray-200 flex items-center justify-center group-hover:border-blue-400">
+                                    <div class="w-3 h-3 rounded-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                </div>
+                            </div>
+                        </button>
+
+                        <!-- Option B -->
+                        <button onclick="handleSelect('${q.id}', 'B')" class="option-card group relative w-full p-6 text-left bg-white border-2 border-gray-100 rounded-xl hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <div class="flex items-center justify-between">
+                                <span class="text-lg text-gray-700 font-medium group-hover:text-blue-700 transition-colors">${q.b}</span>
+                                <div class="w-6 h-6 rounded-full border-2 border-gray-200 flex items-center justify-center group-hover:border-blue-400">
+                                    <div class="w-3 h-3 rounded-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+
+                    ${currentIdx > 0 ? `
+                        <div class="text-center mt-4">
+                            <button onclick="prevQuestion()" class="text-gray-400 hover:text-gray-600 text-sm font-medium transition-colors">
+                                <i class="fa-solid fa-arrow-left mr-1"></i> Quay lại câu trước
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function handleSelect(qId, value) {
+            answers[qId] = value;
+            
+            // Visual feedback - highlight selected temporarily
+            const buttons = document.querySelectorAll('.option-card');
+            // Simply disable to prevent double clicks
+            buttons.forEach(b => b.classList.add('pointer-events-none'));
+            
+            // Short delay before moving to next
+            setTimeout(() => {
+                currentIdx++;
+                renderQuestion();
+            }, 250);
+        }
+
+        function prevQuestion() {
+            if (currentIdx > 0) {
+                currentIdx--;
+                renderQuestion();
+            }
+        }
+
+        function showProcessing() {
+            progressBar.style.width = "100%";
+            questionCounter.innerText = "";
+            categoryLabel.innerText = "ĐANG XỬ LÝ";
+            
+            app.innerHTML = `
+                <div class="flex flex-col items-center justify-center text-center space-y-6 fade-in h-64">
+                    <div class="relative">
+                        <div class="w-16 h-16 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
+                        <i class="fa-solid fa-brain text-blue-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">AI đang phân tích dữ liệu...</h3>
+                        <p class="text-gray-500 text-sm mt-2" id="loadingText">Tổng hợp kết quả...</p>
+                    </div>
+                </div>
+            `;
+
+            // Simulation steps
+            const steps = ["Đang tính toán chỉ số...", "So khớp mẫu tính cách...", "Tạo báo cáo chi tiết...", "Hoàn tất!"];
+            let stepIdx = 0;
+            const interval = setInterval(() => {
+                const el = document.getElementById('loadingText');
+                if (el) el.innerText = steps[stepIdx];
+                stepIdx++;
+                if (stepIdx >= steps.length) {
+                    clearInterval(interval);
+                    calculateAndShowResult();
+                }
+            }, 800);
+        }
+
+        function generateAIAnalysis(scores, type) {
+            // Helper to determine strength
+            const getStrength = (val1, val2) => {
+                const total = val1 + val2;
+                const percentage = (Math.max(val1, val2) / total) * 100;
+                if (percentage > 90) return "tuyệt đối";
+                if (percentage > 75) return "rõ rệt";
+                if (percentage > 60) return "khá";
+                return "cân bằng";
+            };
+
+            const eStr = getStrength(scores.E, scores.I);
+            const sStr = getStrength(scores.S, scores.N);
+            const tStr = getStrength(scores.T, scores.F);
+            const jStr = getStrength(scores.J, scores.P);
+
+            let analysis = "";
+
+            // Intro logic
+            analysis += `<p class="mb-3">Dựa trên dữ liệu, bạn thuộc nhóm <strong>${type}</strong>. Dưới đây là phân tích chuyên sâu về cấu trúc tâm lý của bạn:</p>`;
+
+            // E vs I
+            if (scores.E > scores.I) {
+                analysis += `<p class="mb-2"><strong class="text-blue-600">Năng lượng (${eStr}):</strong> Bạn là người hướng ngoại, tìm thấy năng lượng từ sự tương tác. Ở mức độ ${eStr}, bạn ${eStr === 'tuyệt đối' ? 'cực kỳ năng nổ và khó chịu khi phải ở một mình quá lâu' : 'thích giao tiếp nhưng vẫn trân trọng những khoảng lặng nhất định'}.</p>`;
+            } else {
+                analysis += `<p class="mb-2"><strong class="text-blue-600">Năng lượng (${eStr}):</strong> Bạn là người hướng nội, nạp năng lượng từ thế giới bên trong. Sự hướng nội ${eStr} cho thấy bạn ${eStr === 'rõ rệt' ? 'là người có chiều sâu nội tâm lớn và chọn lọc kỹ các mối quan hệ' : 'cần không gian riêng tư để suy ngẫm sau những giờ làm việc căng thẳng'}.</p>`;
+            }
+
+            // S vs N
+            if (scores.S > scores.N) {
+                analysis += `<p class="mb-2"><strong class="text-blue-600">Tiếp nhận thông tin (${sStr}):</strong> Bạn ưu tiên thực tế (Sensing). Bạn tin vào những gì mắt thấy tai nghe. Cách tiếp cận vấn đề của bạn mang tính ${sStr === 'khá' ? 'thực tiễn và dựa trên kinh nghiệm' : 'cụ thể, chi tiết và hiếm khi mơ mộng viển vông'}.</p>`;
+            } else {
+                analysis += `<p class="mb-2"><strong class="text-blue-600">Tiếp nhận thông tin (${sStr}):</strong> Bạn là người trực giác (Intuition). Bạn nhìn thấy bức tranh lớn và các khả năng tương lai. Tư duy của bạn ${sStr === 'cân bằng' ? 'có sự bay bổng nhưng vẫn giữ được logic' : 'đầy tính sáng tạo, trừu tượng và luôn tìm kiếm ý nghĩa ẩn sau sự việc'}.</p>`;
+            }
+
+            // T vs F
+            if (scores.T > scores.F) {
+                analysis += `<p class="mb-2"><strong class="text-blue-600">Ra quyết định (${tStr}):</strong> Lý trí (Thinking) là kim chỉ nam của bạn. Bạn đánh giá mọi việc dựa trên logic và tính hiệu quả. Bạn ${tStr === 'tuyệt đối' ? 'có thể bị người khác xem là lạnh lùng nhưng thực chất rất công bằng' : 'thường khách quan, thẳng thắn nhưng vẫn cố gắng không làm tổn thương người khác'}.</p>`;
+            } else {
+                analysis += `<p class="mb-2"><strong class="text-blue-600">Ra quyết định (${tStr}):</strong> Cảm xúc (Feeling) dẫn lối cho bạn. Bạn đưa ra quyết định dựa trên giá trị nhân văn và sự hòa hợp. Bạn ${tStr === 'rõ rệt' ? 'là người cực kỳ thấu cảm và luôn đặt con người lên trên quy trình' : 'biết cân bằng giữa lý và tình, nhưng trái tim thường thắng thế'}.</p>`;
+            }
+
+            // J vs P
+            if (scores.J > scores.P) {
+                analysis += `<p class="mb-2"><strong class="text-blue-600">Phong cách sống (${jStr}):</strong> Bạn sống có nguyên tắc (Judging). Sự ngăn nắp ${jStr} của bạn thể hiện qua việc ${jStr === 'rõ rệt' ? 'bạn luôn có kế hoạch B cho mọi tình huống và ghét sự thay đổi phút chót' : 'bạn thích mọi thứ được chốt lại rõ ràng để an tâm thực hiện'}.</p>`;
+            } else {
+                analysis += `<p class="mb-2"><strong class="text-blue-600">Phong cách sống (${jStr}):</strong> Bạn linh hoạt (Perceiving). Bạn thích để mọi thứ mở và tùy cơ ứng biến. Sự tự do này giúp bạn ${jStr === 'tuyệt đối' ? 'cực kỳ giỏi xoay sở trong khủng hoảng và ghét sự ràng buộc' : 'dễ dàng thích nghi với môi trường mới và luôn tìm thấy niềm vui trong sự bất ngờ'}.</p>`;
+            }
+
+            // Career Advice (Mock AI)
+            analysis += `<div class="mt-4 bg-gray-50 p-3 rounded text-sm text-gray-600 border-l-4 border-purple-500">
+                <strong>💡 Gợi ý phát triển:</strong> Với tổ hợp ${type}, hãy tập trung vào môi trường cho phép bạn phát huy tính ${scores.N > scores.S ? 'sáng tạo' : 'thực tế'} và ${scores.J > scores.P ? 'ổn định' : 'tự do'}. Đừng ép mình phải trở thành ai khác.
+            </div>`;
+
+            return analysis;
+        }
+
+        function calculateAndShowResult() {
+            let scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+
+            allQuestions.forEach(q => {
+                const val = answers[q.id];
+                if (val === 'A') scores[q.typeA]++;
+                else if (val === 'B') scores[q.typeB]++;
+            });
+
+            const dim1 = scores.E >= scores.I ? 'E' : 'I';
+            const dim2 = scores.S >= scores.N ? 'S' : 'N';
+            const dim3 = scores.T >= scores.F ? 'T' : 'F';
+            const dim4 = scores.J >= scores.P ? 'J' : 'P';
+            
+            const type = dim1 + dim2 + dim3 + dim4;
+            const info = typeBaseInfo[type];
+            
+            // Generate AI text
+            const aiAnalysisText = generateAIAnalysis(scores, type);
+
+            categoryLabel.innerText = "KẾT QUẢ";
+            progressBar.style.width = "100%";
+
+            app.innerHTML = `
+                <div class="fade-in h-full overflow-y-auto pr-2 custom-scrollbar">
+                    <!-- Top Result Card -->
+                    <div class="text-center mb-8 relative">
+                        <div class="inline-block relative">
+                            <h1 class="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-2">${type}</h1>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-800">${info.title}</h2>
+                        <div class="flex justify-center gap-2 mt-3">
+                            ${info.traits.map(t => `<span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">${t}</span>`).join('')}
+                        </div>
+                    </div>
+
+                    <!-- AI Analysis Section -->
+                    <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm mb-6 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+                        <div class="flex items-center space-x-2 mb-4">
+                            <i class="fa-solid fa-robot text-purple-600 text-xl"></i>
+                            <h3 class="font-bold text-gray-800 text-lg">Phân tích AI</h3>
+                        </div>
+                        <div class="text-gray-600 text-sm leading-relaxed space-y-2 text-justify">
+                            ${aiAnalysisText}
+                        </div>
+                    </div>
+
+                    <!-- Stats Bars -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                        ${renderStatBar('Hướng ngoại (E)', scores.E, 'Hướng nội (I)', scores.I, 'bg-blue-500')}
+                        ${renderStatBar('Trực giác (N)', scores.N, 'Cảm giác (S)', scores.S, 'bg-yellow-500')}
+                        ${renderStatBar('Lý trí (T)', scores.T, 'Cảm xúc (F)', scores.F, 'bg-green-500')}
+                        ${renderStatBar('Nguyên tắc (J)', scores.J, 'Linh hoạt (P)', scores.P, 'bg-purple-500')}
+                    </div>
+
+                    <div class="flex gap-4 justify-center pb-4">
+                        <button onclick="startQuiz()" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition">
+                            <i class="fa-solid fa-rotate-right mr-2"></i>Làm lại
+                        </button>
+                        <button onclick="window.print()" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow transition">
+                            <i class="fa-solid fa-print mr-2"></i>Lưu kết quả
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStatBar(label1, val1, label2, val2, colorClass) {
+            const total = val1 + val2;
+            const pct1 = (val1 / total) * 100;
+            const pct2 = (val2 / total) * 100;
+            
+            return `
+                <div class="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <div class="flex justify-between text-xs font-bold text-gray-500 mb-1">
+                        <span>${label1} (${Math.round(pct1)}%)</span>
+                        <span>${label2} (${Math.round(pct2)}%)</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 flex overflow-hidden">
+                        <div class="${colorClass} h-2.5" style="width: ${pct1}%"></div>
+                        <div class="bg-gray-300 h-2.5" style="width: ${pct2}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Init
+        renderWelcome();
+    </script>
+</body>
+</html>
