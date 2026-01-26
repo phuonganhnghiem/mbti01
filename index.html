@@ -1,709 +1,439 @@
-<!DOCTYPE html>
+
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Báo Cáo Tổng Kết 2025 - Ban Đào tạo & Phát triển</title>
+    <title>Trắc nghiệm tính cách MBTI - AI Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #0056b3; /* Blue corporate */
-            --secondary-color: #00a8cc; /* Teal accent */
-            --bg-color: #f4f7f6;
-            --text-color: #333;
-            --sidebar-width: 280px;
-            --white: #ffffff;
-            --gray-light: #e9ecef;
-            --success: #28a745;
-            --warning: #ffc107;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            display: flex;
-            min-height: 100vh;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #f3f4f6;
         }
-
-        /* Sidebar Navigation */
-        .sidebar {
-            width: var(--sidebar-width);
-            background-color: var(--white);
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            padding: 2rem;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
-            overflow-y: auto;
-            z-index: 100;
+        .option-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        .sidebar h2 {
-            font-size: 1.2rem;
-            color: var(--primary-color);
-            margin-bottom: 2rem;
-            border-bottom: 2px solid var(--gray-light);
-            padding-bottom: 1rem;
+        .option-card:hover {
+            transform: translateY(-2px);
+            border-color: #93c5fd;
         }
-
-        .nav-links {
-            list-style: none;
+        .option-card:active {
+            transform: scale(0.98);
         }
-
-        .nav-links li {
-            margin-bottom: 1rem;
+        .option-card.selected {
+            border-color: #2563eb;
+            background-color: #eff6ff;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1), 0 2px 4px -1px rgba(37, 99, 235, 0.06);
         }
-
-        .nav-links a {
-            text-decoration: none;
-            color: #666;
-            font-weight: 500;
-            display: block;
-            padding: 0.5rem;
-            border-radius: 4px;
-            transition: all 0.3s ease;
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
         }
-
-        .nav-links a:hover, .nav-links a.active {
-            background-color: var(--primary-color);
-            color: var(--white);
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
         }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            margin-left: var(--sidebar-width);
-            padding: 2rem 4rem;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
-
-        /* Header Section */
-        header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: var(--white);
-            padding: 3rem;
-            border-radius: 12px;
-            margin-bottom: 3rem;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,86,179,0.2);
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
-        header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        
+        /* Typing effect cursor */
+        .typing-cursor::after {
+            content: '|';
+            animation: blink 1s step-end infinite;
         }
-
-        header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-
-        /* Sections */
-        section {
-            background: var(--white);
-            padding: 2rem;
-            margin-bottom: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            scroll-margin-top: 2rem;
-        }
-
-        h2.section-title {
-            color: var(--primary-color);
-            border-left: 5px solid var(--secondary-color);
-            padding-left: 1rem;
-            margin-bottom: 1.5rem;
-            font-size: 1.8rem;
-        }
-
-        h3 {
-            color: #444;
-            margin-top: 1.5rem;
-            margin-bottom: 1rem;
-            font-size: 1.3rem;
-        }
-
-        h4 {
-            color: #555;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-
-        /* Personnel Card */
-        .personnel-card {
-            background: #f8f9fa;
-            border-left: 4px solid var(--primary-color);
-            padding: 1.5rem;
-            margin-top: 1rem;
-            border-radius: 0 8px 8px 0;
-        }
-
-        .personnel-name {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        /* Project Cards */
-        .project-card {
-            border: 1px solid #eee;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            background: #fff;
-            transition: transform 0.2s;
-        }
-
-        .project-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        }
-
-        .project-image {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 1rem 0;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        /* CSS cho lưới ảnh (2 ảnh) */
-        .image-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin: 1rem 0;
-        }
-
-        @media (max-width: 600px) {
-            .image-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .project-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 0.5rem;
-        }
-
-        .project-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        .percentage-badge {
-            background: var(--secondary-color);
-            color: white;
-            padding: 0.25rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
-
-        .result-block {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: #f0fdf4; /* Green tint */
-            border-radius: 6px;
-        }
-
-        .improve-block {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: #fff7ed; /* Orange tint */
-            border-radius: 6px;
-        }
-
-        .label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-
-        .label.good { color: var(--success); }
-        .label.bad { color: #d97706; }
-
-        ul {
-            margin-left: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        li {
-            margin-bottom: 0.5rem;
-        }
-
-        /* Score Bars */
-        .score-item {
-            margin-bottom: 1.5rem;
-        }
-
-        .score-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
-
-        .progress-bg {
-            background-color: #e9ecef;
-            height: 20px;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 10px;
-            color: white;
-            font-size: 0.8rem;
-            font-weight: bold;
-            width: 0;
-            transition: width 1.5s ease-in-out;
-        }
-
-        /* Compliance Grid */
-        .compliance-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-        }
-
-        .compliance-box {
-            padding: 1.5rem;
-            border-radius: 8px;
-        }
-
-        .compliance-box.yes {
-            background-color: #f0fdf4;
-            border: 1px solid #bbf7d0;
-        }
-
-        .compliance-box.no {
-            background-color: #fef2f2;
-            border: 1px solid #fecaca;
-        }
-
-        /* Proposals */
-        .proposal-item {
-            background: #fff;
-            border-left: 4px solid var(--warning);
-            padding: 1rem 1.5rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .proposal-title {
-            font-weight: bold;
-            color: #d97706;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            font-size: 0.9rem;
-        }
-
-        /* Footer / Print Button */
-        .print-btn {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 1rem 1.5rem;
-            border-radius: 50px;
-            cursor: pointer;
-            font-size: 1rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            transition: background 0.3s;
-            z-index: 999;
-        }
-
-        .print-btn:hover {
-            background-color: #004494;
-        }
-
-        /* Responsive */
-        @media (max-width: 992px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-            .main-content {
-                margin-left: 0;
-                padding: 1rem;
-            }
-            .sidebar.active {
-                transform: translateX(0);
-            }
-            .menu-toggle {
-                display: block;
-                position: fixed;
-                top: 1rem;
-                left: 1rem;
-                z-index: 101;
-                background: var(--primary-color);
-                color: white;
-                border: none;
-                padding: 0.5rem 1rem;
-                border-radius: 4px;
-            }
-        }
-
-        @media (min-width: 993px) {
-            .menu-toggle {
-                display: none;
-            }
-        }
-
-        @media print {
-            .sidebar, .print-btn, .menu-toggle {
-                display: none;
-            }
-            .main-content {
-                margin: 0;
-                padding: 0;
-            }
-            body {
-                background: white;
-            }
-            section {
-                box-shadow: none;
-                border: 1px solid #eee;
-                break-inside: avoid;
-            }
+        @keyframes blink {
+            50% { opacity: 0; }
         }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-blue-50 to-indigo-100">
 
-    <!-- Mobile Menu Toggle -->
-    <button class="menu-toggle" onclick="toggleSidebar()">☰ Menu</button>
-
-    <!-- Sidebar Navigation -->
-    <nav class="sidebar" id="sidebar">
-        <h2>MỤC LỤC</h2>
-        <ul class="nav-links">
-            <li><a href="#nhan-su" class="nav-link">1. Tình hình nhân sự</a></li>
-            <li><a href="#cong-viec" class="nav-link">2. Công việc thực hiện</a></li>
-            <li><a href="#he-thong-ai" class="nav-link">3. Hệ thống & Đào tạo & AI</a></li>
-            <li><a href="#tuan-thu" class="nav-link">4. Tuân thủ quy định</a></li>
-            <li><a href="#de-xuat" class="nav-link">5. Đề xuất, góp ý</a></li>
-        </ul>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="main-content">
-        <header>
-            <h1>BÁO CÁO TỔNG KẾT 2025</h1>
-            <p>Phòng/Ban: Ban Đào tạo & Phát triển</p>
+    <!-- Container -->
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden min-h-[500px] flex flex-col relative transition-all duration-300" id="mainContainer">
+        
+        <!-- Header -->
+        <header class="bg-white px-6 pt-6 pb-2 text-center border-b border-gray-100 flex justify-between items-center">
+            <div class="text-left">
+                <h1 class="text-xl font-bold text-gray-800 tracking-tight">MBTI Test <span class="text-blue-600 text-sm font-normal bg-blue-50 px-2 py-0.5 rounded-full ml-1">AI Analytics</span></h1>
+            </div>
+            <div class="text-sm text-gray-400" id="questionCounter"></div>
         </header>
 
-        <!-- 1. TÌNH HÌNH NHÂN SỰ -->
-        <section id="nhan-su">
-            <h2 class="section-title">1. TÌNH HÌNH NHÂN SỰ</h2>
-            <h3>1.1. TRÌNH ĐỘ NHÂN SỰ</h3>
-            <p>Thống kê số lượng nhân sự theo cấp bậc (Level):</p>
-            <div class="personnel-card">
-                <span class="personnel-name">Mai Thị Thảo</span> - Level 02
-            </div>
-        </section>
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-100 h-1.5">
+            <div id="progressBar" class="bg-blue-600 h-1.5 transition-all duration-300 ease-out" style="width: 0%"></div>
+        </div>
 
-        <!-- 2. CÔNG VIỆC THỰC HIỆN TRONG NĂM -->
-        <section id="cong-viec">
-            <h2 class="section-title">2. CÔNG VIỆC THỰC HIỆN TRONG NĂM</h2>
-            
-            <!-- Ảnh minh họa chung cho Mục 2 -->
-            <img src="https://i.ibb.co/cSMpfpCb/bc1.png" alt="Ảnh tổng quan mục 2" class="project-image">
+        <!-- Content Area -->
+        <main class="flex-grow p-6 md:p-10 flex flex-col justify-center relative" id="app">
+            <!-- JavaScript will render content here -->
+        </main>
 
-            <h3>2.1. CÁC CÔNG VIỆC ĐÃ THỰC HIỆN</h3>
+        <!-- Footer -->
+        <footer class="bg-gray-50 p-3 text-center text-gray-400 text-xs border-t flex justify-between px-6">
+            <span>&copy; 2024 MBTI AI</span>
+            <span id="categoryLabel" class="font-medium text-gray-500"></span>
+        </footer>
+    </div>
 
-            <!-- Dự án 1 -->
-            <div class="project-card">
-                <div class="project-header">
-                    <div class="project-title">Dự án 1: Chuẩn hóa tài liệu Đào tạo hội nhập Văn hóa doanh nghiệp</div>
-                    <span class="percentage-badge">15%</span>
-                </div>
-                <p><strong>Mô tả:</strong> Chuẩn hóa các tài liệu đào tạo liên quan đến Tầm nhìn - Sứ mệnh - Giá trị cốt lõi, bài giảng offline và online dành cho nhân sự mới.</p>
-                
-                <!-- 2 Ảnh minh họa Dự án 1 -->
-                <div class="image-grid">
-                    <img src="https://i.ibb.co/Xf3hK5NK/IMG-0962.jpg" alt="Ảnh minh họa dự án 1" class="project-image" style="margin: 0;">
-                    <img src="https://i.ibb.co/d4QW837h/bc2.png" alt="Ảnh minh họa thêm" class="project-image" style="margin: 0;">
-                </div>
-
-                <div class="result-block">
-                    <span class="label good">Kết quả đạt được:</span>
-                    <ul>
-                        <li>Quy hoạch được danh sách các nhân sự có khả năng sử dụng tiếng Anh trong công việc tại miền Bắc.</li>
-                        <li>Tổ chức thành công khóa học tiếng Anh giao tiếp, với mức độ cam kết tham gia cao. Khóa học đã đi được 80% thời lượng và hầu như học viên vẫn tham gia, làm bài tập đầy đủ (ngoại trừ 1 bạn nghỉ do chấn thương chân).</li>
-                    </ul>
-                </div>
-
-                <div class="improve-block">
-                    <span class="label bad">Kết quả chưa đạt được/Cần cải thiện:</span>
-                    <p>Khóa học vẫn được theo dõi sát sao bởi trợ giảng và điều chỉnh ngay sau mỗi buổi nếu chưa ổn. Sau khi kết thúc khóa học, phòng L&D sẽ đo lường cuối khóa và rút kinh nghiệm nếu có.</p>
-                </div>
-            </div>
-
-            <!-- Dự án 3 -->
-            <div class="project-card">
-                <div class="project-header">
-                    <div class="project-title">Dự án 3: Chương trình fast-track cho chủ nhiệm dự án & quản lý thầu phụ</div>
-                    <span class="percentage-badge">35%</span>
-                </div>
-                <p><strong>Mô tả:</strong> Để đáp ứng khối lượng công việc/dự án ngày càng cao này, INNO cần một đội ngũ nhân sự lớn và chuyên nghiệp trong thời gian ngắn. Tuy nhiên, nguồn lực nội bộ hiện tại chưa đủ để đảm bảo tiến độ và chất lượng dự án. Vì vậy, công ty triển khai mô hình hợp tác với thầu phụ bên ngoài nhằm giúp nhân sự key trở thành leader trong 2 năm và leader 3 năm mua được nhà. Chương trình trao cơ hội tự chủ cho nhân sự nội bộ – đóng vai trò Chủ nhiệm dự án (Project Manager), dẫn dắt và quản lý đội ngũ thầu phụ để thực thi dự án. Điều này đúng với tầm nhìn và sứ mệnh của 1 INNO mới trong việc "Đồng hành và hỗ trợ các thế hệ kiến trúc sư và kỹ sư Việt Nam trong hành trình phát triển bản thân, nghề nghiệp và khởi nghiệp". Với cách quản lý này, nhân sự có thể đạt mức thu nhập hấp dẫn.</p>
-                
-                <!-- Ảnh minh họa Dự án 3 -->
-                <img src="https://i.ibb.co/HDgvzJW1/fasttrack.png" alt="Ảnh minh họa dự án 3" class="project-image">
-
-                <div class="result-block">
-                    <span class="label good">Kết quả đạt được:</span>
-                    <ul>
-                        <li>Tổ chức đăng ký, đề cử và sàng lọc danh sách để tìm ra >50 ứng viên tham gia chương trình.</li>
-                        <li>Xây dựng được khung bộ kỹ năng cần có cùng hệ thống IDP (Individual Development Plan), hộ chiếu hỗ trợ đào tạo.</li>
-                        <li>Bước đầu triển khai được 1 module và tạo không gian để học viên trao đổi, thảo luận về chuyên môn.</li>
-                    </ul>
-                </div>
-
-                <div class="improve-block">
-                    <span class="label bad">Kết quả chưa đạt được/Cần cải thiện:</span>
-                    <p>Dự án bắt đầu với nguồn lực giới hạn: Thời gian, số lượng chuyên gia, hệ thống hạ tầng nhân sự chưa đủ để đáp ứng. Bởi vậy vẫn ghi nhận 1 số điểm cần cải thiện như sau:</p>
-                    <ul>
-                        <li>Chất lượng khóa học ở thời gian đầu chưa tốt. Ở giai đoạn sau, Ban Đào tạo đã sắp xếp thời gian để tham gia vào khâu thiết kế chương trình và điều phối khóa học nên cũng có cải thiện. Tuy nhiên, do đối tượng là học viên xây tài liệu & đào tạo cuốn chiếu trong thời gian gấp rút nên vẫn còn những hạn chế nhất định.</li>
-                        <li>Hình thức học tập là online kết hợp offline chưa thật sự tối ưu, có nhiều bất lợi đối với đối tượng học online là chị Ngân AS9 và chi nhánh miền Nam. Ban Đào tạo đã tính đến phương án tách thành 2 hình thức, tuy nhiên cần nguồn lực rất lớn để làm việc này, nên sẽ cân nhắc và đề xuất lại sau khi kết thúc học phần 1.</li>
-                        <li>Đầu vào của các học viên chưa tương đương nhau. Để tiếp tục theo học, học viên có trình độ đầu vào chưa tốt cần 1 sự nỗ lực rất lớn và sự hỗ trợ của mentor.</li>
-                        <li>1 số mentor, quản lý miền Nam chưa nắm được các nội dung IDP của fast-track dù đã nhắc nhở và trao đổi nhiều lần. Sẽ follow sát sao hơn với chi nhánh miền Nam.</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Dự án 4 -->
-            <div class="project-card">
-                <div class="project-header">
-                    <div class="project-title">Dự án 4: Khung năng lực</div>
-                    <span class="percentage-badge">25%</span>
-                </div>
-                <p><strong>Mô tả:</strong> Xây dựng khung năng lực để xác định sự phù hợp với định hướng phát triển và khả năng sẵn sàng cho những thách thức chuyển đổi nhằm đạt được kỳ vọng của các mục tiêu chiến lược.</p>
-                
-                <!-- 1 Ảnh minh họa Dự án 4 -->
-                <img src="https://i.ibb.co/pBxTGX1b/bc3.png" alt="Khung năng lực" class="project-image">
-
-                <div class="result-block">
-                    <span class="label good">Kết quả đạt được:</span>
-                    <p>Đây là dự án có độ khó cao do để xây dựng được khung năng lực, hệ thống cấp bậc và nhân sự trong công ty cần có 1 nền tảng đủ vững chắc nhất định. Sau thời gian nghiên cứu và triển khai, dự án đã đạt được các kết quả sau:</p>
-                    <ul>
-                        <li>Xây dựng ver đầu tiên của hệ thống cấp bậc tại INNO, áp dụng framework từ Mercer và Korn Ferry.</li>
-                        <li>Chuẩn hóa khung chức năng - nhiệm vụ của bộ phận & danh mục chức danh khối sản xuất.</li>
-                        <li>Phối hợp với anh ĐứcNA BIM1 hoàn thành bản pilot chức năng - nhiệm vụ khối kiến trúc & khung năng lực Kiến trúc sư concept và Kiến trúc sư dự án.</li>
-                        <li>Hoàn thành action plan kế hoạch xây dựng khung năng lực với khối sản xuất.</li>
-                    </ul>
-                </div>
-            </div>
-
-            <h3>2.3. ĐÁNH GIÁ TIÊU CHÍ (Thang điểm 5)</h3>
-            <div class="scores-container">
-                <div class="score-item">
-                    <div class="score-header">
-                        <span>Khả năng đáp ứng về chất lượng</span>
-                        <strong>4.5/5</strong>
-                    </div>
-                    <div class="progress-bg"><div class="progress-fill" data-width="90%">90%</div></div>
-                </div>
-                <div class="score-item">
-                    <div class="score-header">
-                        <span>Khả năng đáp ứng về tiến độ</span>
-                        <strong>4/5</strong>
-                    </div>
-                    <div class="progress-bg"><div class="progress-fill" data-width="80%">80%</div></div>
-                </div>
-                <div class="score-item">
-                    <div class="score-header">
-                        <span>Tín nhiệm của học viên</span>
-                        <strong>4/5</strong>
-                    </div>
-                    <div class="progress-bg"><div class="progress-fill" data-width="80%">80%</div></div>
-                </div>
-                <div class="score-item">
-                    <div class="score-header">
-                        <span>Tín nhiệm đối với các phòng ban trong công ty</span>
-                        <strong>4.5/5</strong>
-                    </div>
-                    <div class="progress-bg"><div class="progress-fill" data-width="90%">90%</div></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 3. CÔNG TÁC XÂY DỰNG HỆ THỐNG -->
-        <section id="he-thong-ai">
-            <h2 class="section-title">3. CÔNG TÁC XÂY DỰNG HỆ THỐNG, ĐÀO TẠO NỘI BỘ, ỨNG DỤNG AI</h2>
-            
-            <h3>3.1. XÂY DỰNG HỆ THỐNG</h3>
-            <h4>Hoạt động của phòng:</h4>
-            <ul>
-                <li>Quy trình đào tạo</li>
-                <li>Mẫu slide phục vụ cho mục đích đào tạo</li>
-                <li>Tất cả các dự án nếu đã thực hiện 1 lần đều được chuẩn hóa dưới dạng template để có thể tái sử dụng</li>
-            </ul>
-            <h4>Tham gia hệ thống chung:</h4>
-            <ul>
-                <li>Xây dựng hệ thống cấp bậc, khung năng lực</li>
-                <li>Tham gia xây dựng khảo sát Employee Satisfied Survey</li>
-                <li>Tham gia xây dựng form báo cáo cho các bộ phận 2025</li>
-            </ul>
-
-            <h3>3.2. ĐÀO TẠO NỘI BỘ</h3>
-            <h4>Đào tạo nội bộ nhóm:</h4>
-            <ul>
-                <li>Hình thức đào tạo chủ yếu là cầm tay chỉ việc - có phản hồi thường xuyên (OJT)</li>
-            </ul>
-            <h4>Đào tạo và phát triển cá nhân:</h4>
-            <p>Với vị thế là bộ phận phụ trách Đào tạo và Phát triển nguồn lực trong Công ty, Ban Đào tạo yêu cầu rất cao ở bản thân và cả nhân sự trong phòng ban cần ý thức được việc bản thân là 1 hình mẫu - role model cho tinh thần học tập suốt đời và liên tục. Trong 5 tháng từ khi làm việc tại Công ty, Ban Đào tạo đã tự trau dồi và đạt được các thành tựu sau:</p>
-            <ul style="margin-top: 0.5rem;">
-                <li>
-                    <strong>Chứng chỉ CPTD (Certificated Professional in Talent Development):</strong> Chứng chỉ uy tín và bậc cao nhất trong lĩnh vực Đào tạo và Phát triển nhân tài trên thế giới, được cấp bởi Hiệp hội Phát triển nhân tài Hoa Kỳ (ATD). Tại Việt Nam mới có 10 người đạt được chứng chỉ này, và em vinh dự là người trẻ nhất tại Việt Nam đạt được.
-                    <!-- Ảnh chứng chỉ CPTD -->
-                    <img src="https://i.ibb.co/v6Bx96Yj/CPTD.jpg" alt="Chứng chỉ CPTD" class="project-image">
-                </li>
-                <li>Chứng nhận đủ năng lực Thiết kế chương trình đào tạo (Thảo).</li>
-                <li>Chứng nhận hoàn thành các khóa học Thiết kế tổ chức (OD), thiết kế khung năng lực (Phương Anh).</li>
-            </ul>
-            <p style="margin-top: 0.5rem;">Trong năm 2026, Ban Đào tạo hiện đang tiếp tục học về Learning Science (Phương Anh) và Thiết kế hoạt động đào tạo (Thảo).</p>
-
-            <h3>3.3. CHUẨN HÓA DỮ LIỆU & AI</h3>
-            <div style="background: #e8f0fe; padding: 1rem; border-radius: 8px; border-left: 4px solid #4285f4;">
-                <p><strong>Công tác AI:</strong> Trong tháng 12/2025, Ban Đào tạo có tìm hiểu và đạt được chứng nhận <strong>Gemini Certified Educator</strong> - cấp bởi Google - kiểm tra khả năng hiểu và áp dụng công cụ Gemini AI trong công việc thuộc lĩnh vực và đào tạo.</p>
-                <!-- Ảnh chứng nhận Gemini -->
-                <img src="https://i.ibb.co/Cpdhj3cB/z7426723703389-73f1872190bbc05afcd61a180b754275.jpg" alt="Chứng nhận Gemini AI" class="project-image" style="margin-bottom: 0;">
-            </div>
-            <h4 style="margin-top: 1rem;">Ứng dụng AI:</h4>
-            <ul>
-                <li>Sử dụng AI trong việc tra cứu, tìm hiểu các thông tin về mặt chuyên môn.</li>
-                <li>Sử dụng Gemini AI trong nghiệp vụ đào tạo: <a href="#" style="color: var(--primary-color); text-decoration: underline; font-weight: 500;">Thiết kế template slide</a>, <a href=https://docs.google.com/presentation/d/1T-s3dDdzDo0eFYqPi-jtlL1UEv_rCjVwlNpJ1lhb3Cw/edit?slide=id.g3adc6eb5f5c_0_291#slide=id.g3adc6eb5f5c_0_291" style="color: var(--primary-color); text-decoration: underline; font-weight: 500;">web-app HTML</a>, flashcard,...</li>
-            </ul>
-        </section>
-
-        <!-- 4. TUÂN THỦ CÁC QUY ĐỊNH CỦA CÔNG TY -->
-        <section id="tuan-thu">
-            <h2 class="section-title">4. TUÂN THỦ CÁC QUY ĐỊNH CỦA CÔNG TY</h2>
-            <div class="compliance-grid">
-                <div class="compliance-box yes">
-                    <h3 style="color: var(--success); margin-top:0;">Đã tuân thủ:</h3>
-                    <ul>
-                        <li><strong>Quy định về thời gian làm việc:</strong> Đảm bảo đi làm đúng giờ.</li>
-                        <li><strong>Quy định về Bảo mật và An toàn:</strong>
-                            <ul>
-                                <li>Đảm bảo không tiết lộ thông tin kinh doanh, khách hàng, bí quyết công nghệ của công ty.</li>
-                                <li>Đảm bảo bảo quản tài sản được giao, sử dụng tiết kiệm điện, nước.</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <div class="compliance-box no">
-                    <h3 style="color: #dc3545; margin-top:0;">Chưa tuân thủ tốt:</h3>
-                    <p>Không có</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- 5. ĐỀ XUẤT & GÓP Ý -->
-        <section id="de-xuat">
-            <h2 class="section-title">5. ĐỀ XUẤT & GÓP Ý</h2>
-            <h3>5.1. CÁC ĐỀ XUẤT</h3>
-
-            <div class="proposal-item">
-                <div class="proposal-title">Đề xuất 1: Về nhân sự</div>
-                <p>Thêm 1 nhân sự vào ở thời điểm thích hợp (dự kiến quý 2 ~ quý 3).</p>
-            </div>
-
-            <div class="proposal-item">
-                <div class="proposal-title">Đề xuất 2: Về cơ sở vật chất</div>
-                <ul>
-                    <li><strong>Tầng hầm để xe:</strong> đề xuất bổ sung chỗ để xe cho nhân sự vì hiện tại tầng hầm khá chật.</li>
-                    <li><strong>Tủ thuốc:</strong> đề xuất bổ sung các loại thuốc như men tiêu hóa, panadol, siro ho,.. ở từng tầng dành cho nhân sự khi cần.</li>
-                </ul>
-            </div>
-
-            <div class="proposal-item">
-                <div class="proposal-title">Đề xuất 3: Về chế độ làm việc và đãi ngộ</div>
-                <ul>
-                    <li><strong>Bảo hiểm xã hội (BHXH):</strong> Đề xuất tăng mức đóng BHXH theo từng level để tăng tính cạnh tranh trên thị trường.</li>
-                    <li><strong>Cơ chế Remote (Làm việc từ xa):</strong> Cho phép làm việc tại nhà từ ~3 ngày/tháng đối với các trường hợp đặc biệt (sức khỏe, việc gia đình) để đảm bảo sức khỏe và hiệu suất bền vững.</li>
-                    <li><strong>Chế độ nghỉ:</strong> Hiện giờ chế độ nghỉ phép đang theo ca. Đề xuất sang chế độ trừ phép theo phút (tận dụng tính năng của 1Office) để tối ưu hóa ngày phép cho nhân viên.</li>
-                </ul>
-            </div>
-
-            <div class="proposal-item">
-                <div class="proposal-title">Đề xuất 4: Về đào tạo và phát triển bản thân</div>
-                <p><strong>Hỗ trợ chi phí đào tạo, thi chứng chỉ:</strong> đề xuất công ty hỗ trợ toàn phần hoặc 1 phần chi phí tham gia khóa học, thi chứng chỉ, đổi lấy sự cam kết về thời gian làm việc của nhân sự dành cho công ty</p>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Print Button -->
-    <button class="print-btn" onclick="window.print()">🖨️ In Báo Cáo</button>
-
+    <!-- Logic Script -->
     <script>
-        // Animate Progress Bars on Scroll
-        document.addEventListener('DOMContentLoaded', function() {
-            const progressBars = document.querySelectorAll('.progress-fill');
+        // --- DATA ---
+        // Flattened structure for single-question flow
+        const allQuestions = [
+            // Phần 1 (E/I)
+            { id: 1, a: "Tôi thích giao lưu, thảo luận nhóm", b: "Tôi thích làm việc độc lập, yên tĩnh", typeA: "E", typeB: "I", category: "Năng lượng" },
+            { id: 2, a: "Tôi dễ bắt chuyện với người mới", b: "Tôi cần thời gian để làm quen", typeA: "E", typeB: "I", category: "Năng lượng" },
+            { id: 3, a: "Tôi cảm thấy “nạp năng lượng” khi ở nơi đông người", b: "Tôi thấy “xả stress” khi ở một mình", typeA: "E", typeB: "I", category: "Năng lượng" },
+            { id: 4, a: "Tôi thường bộc lộ suy nghĩ ra ngoài", b: "Tôi thường suy nghĩ kỹ trước khi nói", typeA: "E", typeB: "I", category: "Năng lượng" },
+            { id: 5, a: "Tôi học tốt nhất khi làm cùng người khác", b: "Tôi học tốt nhất khi tự học, tự nghiên cứu", typeA: "E", typeB: "I", category: "Năng lượng" },
+            // Phần 2 (S/N)
+            { id: 6, a: "Tôi tập trung vào sự kiện, dữ kiện cụ thể", b: "Tôi quan tâm đến ý tưởng và khả năng tiềm tàng", typeA: "S", typeB: "N", category: "Thông tin" },
+            { id: 7, a: "Tôi thích quy trình rõ ràng, từng bước một", b: "Tôi thích sáng tạo và khám phá phương án mới", typeA: "S", typeB: "N", category: "Thông tin" },
+            { id: 8, a: "Tôi tin vào kinh nghiệm thực tế", b: "Tôi tin vào trực giác và cảm nhận cá nhân", typeA: "S", typeB: "N", category: "Thông tin" },
+            { id: 9, a: "Tôi hay để ý đến chi tiết nhỏ", b: "Tôi nhìn vào bức tranh tổng thể", typeA: "S", typeB: "N", category: "Thông tin" },
+            { id: 10, a: "Tôi thích những gì có thể đo lường", b: "Tôi hứng thú với những gì “có thể xảy ra” trong tương lai", typeA: "S", typeB: "N", category: "Thông tin" },
+            // Phần 3 (T/F)
+            { id: 11, a: "Tôi ra quyết định dựa trên lý trí, logic", b: "Tôi cân nhắc cảm xúc, tác động đến con người", typeA: "T", typeB: "F", category: "Quyết định" },
+            { id: 12, a: "Tôi thẳng thắn, góp ý trực tiếp", b: "Tôi nhẹ nhàng, quan tâm cảm xúc người khác", typeA: "T", typeB: "F", category: "Quyết định" },
+            { id: 13, a: "Tôi đặt hiệu quả lên hàng đầu", b: "Tôi đặt sự hài hòa, đồng thuận lên hàng đầu", typeA: "T", typeB: "F", category: "Quyết định" },
+            { id: 14, a: "Tôi xử lý vấn đề như một “chuyên gia”", b: "Tôi xử lý như một “người đồng hành”", typeA: "T", typeB: "F", category: "Quyết định" },
+            { id: 15, a: "Tôi thích môi trường cạnh tranh, đánh giá kết quả", b: "Tôi thích môi trường gắn kết, hỗ trợ lẫn nhau", typeA: "T", typeB: "F", category: "Quyết định" },
+            // Phần 4 (J/P)
+            { id: 16, a: "Tôi lên kế hoạch rõ ràng, làm việc theo tiến trình", b: "Tôi linh hoạt, phản ứng theo tình huống", typeA: "J", typeB: "P", category: "Tổ chức" },
+            { id: 17, a: "Tôi thích kết luận nhanh, đóng khung vấn đề", b: "Tôi thích mở rộng, khám phá nhiều khả năng", typeA: "J", typeB: "P", category: "Tổ chức" },
+            { id: 18, a: "Tôi thường tuân thủ thời hạn nghiêm túc", b: "Tôi có xu hướng trì hoãn nếu chưa cần gấp", typeA: "J", typeB: "P", category: "Tổ chức" },
+            { id: 19, a: "Tôi thấy hài lòng khi mọi việc được tổ chức chặt chẽ", b: "Tôi thấy thoải mái khi được tự do quyết định", typeA: "J", typeB: "P", category: "Tổ chức" },
+            { id: 20, a: "Tôi thích “đóng việc” hơn là “mở việc”", b: "Tôi thích để mọi thứ “mở”, có thể thay đổi", typeA: "J", typeB: "P", category: "Tổ chức" }
+        ];
+
+        const typeBaseInfo = {
+            "ISTJ": { title: "Người Trách Nhiệm", role: "Nhà quản lý", traits: ["Thực tế", "Có tổ chức", "Đáng tin cậy"] },
+            "ISFJ": { title: "Người Nuôi Dưỡng", role: "Người bảo vệ", traits: ["Tận tụy", "Ân cần", "Kiên nhẫn"] },
+            "INFJ": { title: "Người Che Chở", role: "Nhà tư vấn", traits: ["Sâu sắc", "Sáng tạo", "Tầm nhìn"] },
+            "INTJ": { title: "Nhà Kiến Tạo", role: "Nhà chiến lược", traits: ["Logic", "Độc lập", "Quyết đoán"] },
+            "ISTP": { title: "Thợ Thủ Công", role: "Nhà kỹ thuật", traits: ["Linh hoạt", "Thực tế", "Khéo léo"] },
+            "ISFP": { title: "Người Nghệ Sĩ", role: "Nhà phiêu lưu", traits: ["Ôn hòa", "Nhạy cảm", "Tinh tế"] },
+            "INFP": { title: "Người Hòa Giải", role: "Nhà lý tưởng", traits: ["Trung thành", "Thấu cảm", "Sáng tạo"] },
+            "INTP": { title: "Nhà Tư Duy", role: "Nhà logic học", traits: ["Tò mò", "Phân tích", "Trừu tượng"] },
+            "ESTP": { title: "Người Thực Thi", role: "Nhà khởi xướng", traits: ["Năng động", "Thực dụng", "Mạo hiểm"] },
+            "ESFP": { title: "Người Trình Diễn", role: "Người giải trí", traits: ["Vui vẻ", "Nhiệt tình", "Tự phát"] },
+            "ENFP": { title: "Người Truyền Cảm Hứng", role: "Nhà vận động", traits: ["Sáng tạo", "Nhiệt huyết", "Tự do"] },
+            "ENTP": { title: "Người Nhìn Xa", role: "Người tranh luận", traits: ["Thông minh", "Linh hoạt", "Thách thức"] },
+            "ESTJ": { title: "Người Giám Sát", role: "Nhà điều hành", traits: ["Quyết đoán", "Hiệu quả", "Hệ thống"] },
+            "ESFJ": { title: "Người Quan Tâm", role: "Người cung cấp", traits: ["Hòa đồng", "Tận tụy", "Hợp tác"] },
+            "ENFJ": { title: "Người Chỉ Dẫn", role: "Nhà giáo", traits: ["Thu hút", "Thấu hiểu", "Lãnh đạo"] },
+            "ENTJ": { title: "Nhà Điều Hành", role: "Nhà chỉ huy", traits: ["Chiến lược", "Tham vọng", "Mạnh mẽ"] }
+        };
+
+        // State
+        let currentIdx = 0;
+        let answers = {}; // { id: 'A' | 'B' }
+        const app = document.getElementById('app');
+        const progressBar = document.getElementById('progressBar');
+        const questionCounter = document.getElementById('questionCounter');
+        const categoryLabel = document.getElementById('categoryLabel');
+
+        // --- CORE FUNCTIONS ---
+
+        function renderWelcome() {
+            questionCounter.innerText = "";
+            categoryLabel.innerText = "";
+            progressBar.style.width = "0%";
             
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const bar = entry.target;
-                        bar.style.width = bar.getAttribute('data-width');
-                        observer.unobserve(bar);
-                    }
-                });
-            }, { threshold: 0.5 });
+            app.innerHTML = `
+                <div class="text-center space-y-8 fade-in py-4">
+                    <div class="relative inline-block">
+                        <div class="absolute inset-0 bg-blue-200 blur-xl rounded-full opacity-50"></div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm relative border border-blue-100">
+                            <i class="fa-solid fa-clipboard-list text-5xl text-blue-600"></i>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-6">Hướng dẫn</h2>
+                        
+                        <div class="space-y-4 max-w-lg mx-auto text-left bg-blue-50 p-6 rounded-xl border border-blue-100 shadow-sm">
+                             <ul class="list-disc pl-5 space-y-3 text-gray-700 font-medium">
+                                <li>Với mỗi cặp câu hỏi, hãy chọn 1 câu mô tả bạn đúng hơn trong phần lớn tình huống công việc hàng ngày.</li>
+                                <li>Không có đúng sai, chỉ có sự phù hợp với bản thân bạn.</li>
+                            </ul>
+                        </div>
+                    </div>
 
-            progressBars.forEach(bar => observer.observe(bar));
-        });
-
-        // Sidebar Active State on Scroll
-        const sections = document.querySelectorAll('section');
-        const navLinks = document.querySelectorAll('.nav-link');
-
-        window.addEventListener('scroll', () => {
-            let current = '';
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                if (scrollY >= sectionTop - 100) {
-                    current = section.getAttribute('id');
-                }
-            });
-
-            navLinks.forEach(li => {
-                li.classList.remove('active');
-                if (li.getAttribute('href').includes(current)) {
-                    li.classList.add('active');
-                }
-            });
-        });
-
-        // Mobile Sidebar Toggle
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('active');
+                    <button onclick="startQuiz()" class="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-full bg-blue-600 px-8 font-medium text-white shadow-lg transition-all duration-300 hover:bg-blue-700 hover:w-48 w-40 hover:shadow-blue-500/30">
+                        <span class="mr-2">Bắt đầu</span>
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                </div>
+            `;
         }
+
+        function startQuiz() {
+            currentIdx = 0;
+            answers = {};
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            if (currentIdx >= allQuestions.length) {
+                showProcessing();
+                return;
+            }
+
+            const q = allQuestions[currentIdx];
+            const progress = ((currentIdx) / allQuestions.length) * 100;
+            
+            progressBar.style.width = `${progress}%`;
+            questionCounter.innerText = `${currentIdx + 1}/${allQuestions.length}`;
+            // Removed category display as requested
+            categoryLabel.innerText = ""; 
+
+            // Fade out current content first (optional, simplistic replace here)
+            app.innerHTML = `
+                <div class="flex flex-col h-full justify-center space-y-8 slide-up">
+                    <h2 class="text-center text-gray-400 text-sm font-semibold tracking-wider uppercase mb-2">Câu hỏi ${currentIdx + 1}</h2>
+                    
+                    <div class="grid gap-4">
+                        <!-- Option A -->
+                        <button onclick="handleSelect('${q.id}', 'A')" class="option-card group relative w-full p-6 text-left bg-white border-2 border-gray-100 rounded-xl hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <div class="flex items-center justify-between">
+                                <span class="text-lg text-gray-700 font-medium group-hover:text-blue-700 transition-colors">${q.a}</span>
+                                <div class="w-6 h-6 rounded-full border-2 border-gray-200 flex items-center justify-center group-hover:border-blue-400">
+                                    <div class="w-3 h-3 rounded-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                </div>
+                            </div>
+                        </button>
+
+                        <!-- Option B -->
+                        <button onclick="handleSelect('${q.id}', 'B')" class="option-card group relative w-full p-6 text-left bg-white border-2 border-gray-100 rounded-xl hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <div class="flex items-center justify-between">
+                                <span class="text-lg text-gray-700 font-medium group-hover:text-blue-700 transition-colors">${q.b}</span>
+                                <div class="w-6 h-6 rounded-full border-2 border-gray-200 flex items-center justify-center group-hover:border-blue-400">
+                                    <div class="w-3 h-3 rounded-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+
+                    ${currentIdx > 0 ? `
+                        <div class="text-center mt-4">
+                            <button onclick="prevQuestion()" class="text-gray-400 hover:text-gray-600 text-sm font-medium transition-colors">
+                                <i class="fa-solid fa-arrow-left mr-1"></i> Quay lại câu trước
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function handleSelect(qId, value) {
+            answers[qId] = value;
+            
+            // Visual feedback - highlight selected temporarily
+            const buttons = document.querySelectorAll('.option-card');
+            // Simply disable to prevent double clicks
+            buttons.forEach(b => b.classList.add('pointer-events-none'));
+            
+            // Short delay before moving to next
+            setTimeout(() => {
+                currentIdx++;
+                renderQuestion();
+            }, 250);
+        }
+
+        function prevQuestion() {
+            if (currentIdx > 0) {
+                currentIdx--;
+                renderQuestion();
+            }
+        }
+
+        function showProcessing() {
+            progressBar.style.width = "100%";
+            questionCounter.innerText = "";
+            categoryLabel.innerText = "ĐANG XỬ LÝ";
+            
+            app.innerHTML = `
+                <div class="flex flex-col items-center justify-center text-center space-y-6 fade-in h-64">
+                    <div class="relative">
+                        <div class="w-16 h-16 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
+                        <i class="fa-solid fa-brain text-blue-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">AI đang phân tích dữ liệu...</h3>
+                        <p class="text-gray-500 text-sm mt-2" id="loadingText">Tổng hợp kết quả...</p>
+                    </div>
+                </div>
+            `;
+
+            // Simulation steps
+            const steps = ["Đang tính toán chỉ số...", "So khớp mẫu tính cách...", "Tạo báo cáo chi tiết...", "Hoàn tất!"];
+            let stepIdx = 0;
+            const interval = setInterval(() => {
+                const el = document.getElementById('loadingText');
+                if (el) el.innerText = steps[stepIdx];
+                stepIdx++;
+                if (stepIdx >= steps.length) {
+                    clearInterval(interval);
+                    calculateAndShowResult();
+                }
+            }, 800);
+        }
+
+        function generateAIAnalysis(scores, type) {
+            // Helper to determine strength
+            const getStrength = (val1, val2) => {
+                const total = val1 + val2;
+                const percentage = (Math.max(val1, val2) / total) * 100;
+                if (percentage > 90) return "tuyệt đối";
+                if (percentage > 75) return "rõ rệt";
+                if (percentage > 60) return "khá";
+                return "cân bằng";
+            };
+
+            const eStr = getStrength(scores.E, scores.I);
+            const sStr = getStrength(scores.S, scores.N);
+            const tStr = getStrength(scores.T, scores.F);
+            const jStr = getStrength(scores.J, scores.P);
+
+            let analysis = "";
+
+            // Intro logic
+            analysis += `<p class="mb-3">Dựa trên dữ liệu, bạn thuộc nhóm <strong>${type}</strong>. Dưới đây là phân tích chuyên sâu về cấu trúc tâm lý của bạn:</p>`;
+
+            // E vs I
+            if (scores.E > scores.I) {
+                analysis += `<p class="mb-2"><strong class="text-blue-600">Năng lượng (${eStr}):</strong> Bạn là người hướng ngoại, tìm thấy năng lượng từ sự tương tác. Ở mức độ ${eStr}, bạn ${eStr === 'tuyệt đối' ? 'cực kỳ năng nổ và khó chịu khi phải ở một mình quá lâu' : 'thích giao tiếp nhưng vẫn trân trọng những khoảng lặng nhất định'}.</p>`;
+            } else {
+                analysis += `<p class="mb-2"><strong class="text-blue-600">Năng lượng (${eStr}):</strong> Bạn là người hướng nội, nạp năng lượng từ thế giới bên trong. Sự hướng nội ${eStr} cho thấy bạn ${eStr === 'rõ rệt' ? 'là người có chiều sâu nội tâm lớn và chọn lọc kỹ các mối quan hệ' : 'cần không gian riêng tư để suy ngẫm sau những giờ làm việc căng thẳng'}.</p>`;
+            }
+
+            // S vs N
+            if (scores.S > scores.N) {
+                analysis += `<p class="mb-2"><strong class="text-blue-600">Tiếp nhận thông tin (${sStr}):</strong> Bạn ưu tiên thực tế (Sensing). Bạn tin vào những gì mắt thấy tai nghe. Cách tiếp cận vấn đề của bạn mang tính ${sStr === 'khá' ? 'thực tiễn và dựa trên kinh nghiệm' : 'cụ thể, chi tiết và hiếm khi mơ mộng viển vông'}.</p>`;
+            } else {
+                analysis += `<p class="mb-2"><strong class="text-blue-600">Tiếp nhận thông tin (${sStr}):</strong> Bạn là người trực giác (Intuition). Bạn nhìn thấy bức tranh lớn và các khả năng tương lai. Tư duy của bạn ${sStr === 'cân bằng' ? 'có sự bay bổng nhưng vẫn giữ được logic' : 'đầy tính sáng tạo, trừu tượng và luôn tìm kiếm ý nghĩa ẩn sau sự việc'}.</p>`;
+            }
+
+            // T vs F
+            if (scores.T > scores.F) {
+                analysis += `<p class="mb-2"><strong class="text-blue-600">Ra quyết định (${tStr}):</strong> Lý trí (Thinking) là kim chỉ nam của bạn. Bạn đánh giá mọi việc dựa trên logic và tính hiệu quả. Bạn ${tStr === 'tuyệt đối' ? 'có thể bị người khác xem là lạnh lùng nhưng thực chất rất công bằng' : 'thường khách quan, thẳng thắn nhưng vẫn cố gắng không làm tổn thương người khác'}.</p>`;
+            } else {
+                analysis += `<p class="mb-2"><strong class="text-blue-600">Ra quyết định (${tStr}):</strong> Cảm xúc (Feeling) dẫn lối cho bạn. Bạn đưa ra quyết định dựa trên giá trị nhân văn và sự hòa hợp. Bạn ${tStr === 'rõ rệt' ? 'là người cực kỳ thấu cảm và luôn đặt con người lên trên quy trình' : 'biết cân bằng giữa lý và tình, nhưng trái tim thường thắng thế'}.</p>`;
+            }
+
+            // J vs P
+            if (scores.J > scores.P) {
+                analysis += `<p class="mb-2"><strong class="text-blue-600">Phong cách sống (${jStr}):</strong> Bạn sống có nguyên tắc (Judging). Sự ngăn nắp ${jStr} của bạn thể hiện qua việc ${jStr === 'rõ rệt' ? 'bạn luôn có kế hoạch B cho mọi tình huống và ghét sự thay đổi phút chót' : 'bạn thích mọi thứ được chốt lại rõ ràng để an tâm thực hiện'}.</p>`;
+            } else {
+                analysis += `<p class="mb-2"><strong class="text-blue-600">Phong cách sống (${jStr}):</strong> Bạn linh hoạt (Perceiving). Bạn thích để mọi thứ mở và tùy cơ ứng biến. Sự tự do này giúp bạn ${jStr === 'tuyệt đối' ? 'cực kỳ giỏi xoay sở trong khủng hoảng và ghét sự ràng buộc' : 'dễ dàng thích nghi với môi trường mới và luôn tìm thấy niềm vui trong sự bất ngờ'}.</p>`;
+            }
+
+            // Career Advice (Mock AI)
+            analysis += `<div class="mt-4 bg-gray-50 p-3 rounded text-sm text-gray-600 border-l-4 border-purple-500">
+                <strong>💡 Gợi ý phát triển:</strong> Với tổ hợp ${type}, hãy tập trung vào môi trường cho phép bạn phát huy tính ${scores.N > scores.S ? 'sáng tạo' : 'thực tế'} và ${scores.J > scores.P ? 'ổn định' : 'tự do'}. Đừng ép mình phải trở thành ai khác.
+            </div>`;
+
+            return analysis;
+        }
+
+        function calculateAndShowResult() {
+            let scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+
+            allQuestions.forEach(q => {
+                const val = answers[q.id];
+                if (val === 'A') scores[q.typeA]++;
+                else if (val === 'B') scores[q.typeB]++;
+            });
+
+            const dim1 = scores.E >= scores.I ? 'E' : 'I';
+            const dim2 = scores.S >= scores.N ? 'S' : 'N';
+            const dim3 = scores.T >= scores.F ? 'T' : 'F';
+            const dim4 = scores.J >= scores.P ? 'J' : 'P';
+            
+            const type = dim1 + dim2 + dim3 + dim4;
+            const info = typeBaseInfo[type];
+            
+            // Generate AI text
+            const aiAnalysisText = generateAIAnalysis(scores, type);
+
+            categoryLabel.innerText = "KẾT QUẢ";
+            progressBar.style.width = "100%";
+
+            app.innerHTML = `
+                <div class="fade-in h-full overflow-y-auto pr-2 custom-scrollbar">
+                    <!-- Top Result Card -->
+                    <div class="text-center mb-8 relative">
+                        <div class="inline-block relative">
+                            <h1 class="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-2">${type}</h1>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-800">${info.title}</h2>
+                        <div class="flex justify-center gap-2 mt-3">
+                            ${info.traits.map(t => `<span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">${t}</span>`).join('')}
+                        </div>
+                    </div>
+
+                    <!-- AI Analysis Section -->
+                    <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm mb-6 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+                        <div class="flex items-center space-x-2 mb-4">
+                            <i class="fa-solid fa-robot text-purple-600 text-xl"></i>
+                            <h3 class="font-bold text-gray-800 text-lg">Phân tích AI</h3>
+                        </div>
+                        <div class="text-gray-600 text-sm leading-relaxed space-y-2 text-justify">
+                            ${aiAnalysisText}
+                        </div>
+                    </div>
+
+                    <!-- Stats Bars -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                        ${renderStatBar('Hướng ngoại (E)', scores.E, 'Hướng nội (I)', scores.I, 'bg-blue-500')}
+                        ${renderStatBar('Trực giác (N)', scores.N, 'Cảm giác (S)', scores.S, 'bg-yellow-500')}
+                        ${renderStatBar('Lý trí (T)', scores.T, 'Cảm xúc (F)', scores.F, 'bg-green-500')}
+                        ${renderStatBar('Nguyên tắc (J)', scores.J, 'Linh hoạt (P)', scores.P, 'bg-purple-500')}
+                    </div>
+
+                    <div class="flex gap-4 justify-center pb-4">
+                        <button onclick="startQuiz()" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition">
+                            <i class="fa-solid fa-rotate-right mr-2"></i>Làm lại
+                        </button>
+                        <button onclick="window.print()" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow transition">
+                            <i class="fa-solid fa-print mr-2"></i>Lưu kết quả
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStatBar(label1, val1, label2, val2, colorClass) {
+            const total = val1 + val2;
+            const pct1 = (val1 / total) * 100;
+            const pct2 = (val2 / total) * 100;
+            
+            return `
+                <div class="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <div class="flex justify-between text-xs font-bold text-gray-500 mb-1">
+                        <span>${label1} (${Math.round(pct1)}%)</span>
+                        <span>${label2} (${Math.round(pct2)}%)</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 flex overflow-hidden">
+                        <div class="${colorClass} h-2.5" style="width: ${pct1}%"></div>
+                        <div class="bg-gray-300 h-2.5" style="width: ${pct2}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Init
+        renderWelcome();
     </script>
 </body>
 </html>
